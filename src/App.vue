@@ -36,15 +36,15 @@
                 <a>Completed</a>
                 <a>Uncompleted</a>
             </p>
-            <a class="panel-block">
+            <a class="panel-block" v-for="(todo, index) in todos" :key=todo.id>
                 <div class="left-block">
                     <div class="field">
-                        <b-checkbox :value="true" v-model="isCompleted"
+                        <b-checkbox :value="true" v-model="todo.isCompleted"
                         type="is-success">
                         </b-checkbox>
                     </div>
-                    <p class="todo-text" :class="{ 'todo-done' : isCompleted }">
-                        bulma
+                    <p class="todo-text" :class="{ 'todo-done' : todo.isCompleted }">
+                        {{todo.value}}
                     </p>
                 </div>
 
@@ -71,7 +71,13 @@
 export default {
     data() {
         return {
-            isCompleted: true
+            isCompleted: true,
+            todos: [
+                { id: 1, value: 'First todo', isCompleted: true},
+                { id: 2, value: 'Second todo', isCompleted: false},
+                { id: 3, value: 'Third todo', isCompleted: true},
+                
+            ]
         }
     }
 }
