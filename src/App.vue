@@ -113,11 +113,11 @@ export default {
     },
     mounted() {
         if (localStorage.getItem("todos")) {
-             console.log('1');
+            console.log('1');
             this.allTodos = JSON.parse(localStorage.getItem("todos"));
            
         } else {
-             console.log('2');
+            console.log('2');
             this.allTodos = this.initialTodos;
            
        }
@@ -131,7 +131,7 @@ export default {
             }, 500);
         },
         saveToLocalStorage() {
-            localStorage.setItem("todos", JSON.stringify(this.initialTodos));
+            localStorage.setItem("todos", JSON.stringify(this.allTodos));
             this.allTodos = JSON.parse(localStorage.getItem("todos"));
         }
     }
