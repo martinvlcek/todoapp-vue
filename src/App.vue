@@ -1,5 +1,32 @@
 <template>
     <div id="app">
+
+
+        <!-- ADD TODO MODAL CONTENT -->
+            <section>
+                <b-modal :active.sync="isAddTodoModalActive" :width="640" scroll="keep">
+                    <form action="">
+                        <div class="modal-card" style="width: auto">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">Add new todo</p>
+                            </header>
+                            <section class="modal-card-body">
+                                <b-field label="Todo message">
+                                    <b-input v-model="addNewTodoValue" maxlength="200" type="textarea"></b-input>
+                                </b-field>
+
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button class="button" type="button" @click="isAddTodoModalActive = false">Close</button>
+                                <button class="button is-primary" @click.prevent="addNewTodo()">Add todo</button>
+                            </footer>
+                        </div>
+                    </form>
+                </b-modal>
+            
+            </section>
+
+
         <section class="hero is-dark is-bold">
             <div class="hero-body">
                 <div class="container">
@@ -25,7 +52,8 @@
                 </span>
                 </p>
 
-                <button class="button is-info add-todo-btn">
+                <button class="button is-info add-todo-btn"
+                    @click="isAddTodoModalActive = true">
                     <b-icon icon="plus-circle-outline"></b-icon>
                     <span>Add todo</span>
                 </button>
@@ -36,7 +64,7 @@
                 <a>Completed</a>
                 <a>Uncompleted</a>
             </p>
-            <a class="panel-block" v-for="(todo, index) in todos" :key=todo.id>
+            <a class="panel-block" v-for="todo in todos" :key="todo.id">
                 <div class="left-block">
                     <div class="field">
                         <b-checkbox :value="true" v-model="todo.isCompleted"
@@ -71,6 +99,8 @@
 export default {
     data() {
         return {
+            addNewTodoValue: '',
+            isAddTodoModalActive: false,
             isCompleted: true,
             todos: [
                 { id: 1, value: 'First todo', isCompleted: true},
@@ -78,6 +108,26 @@ export default {
                 { id: 3, value: 'Third todo', isCompleted: true},
                 
             ]
+        }
+    },
+    mounted() {
+        if (localStorage.getItem("todos")) {
+            this.todos = JSON.parse(localStorage.getItem("todos"));
+        } else {
+            this.todos = this.todos;
+        }
+    },
+    methods: {
+        addNewTodo() {
+            this.isAddTodoModalActive = false;
+            setTimeout (() => {
+                this.todos.push({id: this.todos.length + 1, value: this.addNewTodoValue, isCompleted: false});
+                this.saveToLocalStorage();
+            }, 500);
+        },
+        saveToLocalStorage() {
+            localStorage.setItem("todos", JSON.stringify(this.todos));
+            this.todos = JSON.parse(localStorage.getItem("todos"));
         }
     }
 }
