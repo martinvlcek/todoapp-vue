@@ -64,7 +64,7 @@
                 <a>Completed</a>
                 <a>Uncompleted</a>
             </p>
-            <a class="panel-block" v-for="todo in todos" :key="todo.id">
+            <a class="panel-block" v-for="todo in allTodos" :key="todo.id">
                 <div class="left-block">
                     <div class="field">
                         <b-checkbox :value="true" v-model="todo.isCompleted"
@@ -102,7 +102,8 @@ export default {
             addNewTodoValue: '',
             isAddTodoModalActive: false,
             isCompleted: true,
-            todos: [
+            allTodos: [],
+            initialTodos: [
                 { id: 1, value: 'First todo', isCompleted: true},
                 { id: 2, value: 'Second todo', isCompleted: false},
                 { id: 3, value: 'Third todo', isCompleted: true},
@@ -112,22 +113,26 @@ export default {
     },
     mounted() {
         if (localStorage.getItem("todos")) {
-            this.todos = JSON.parse(localStorage.getItem("todos"));
+             console.log('1');
+            this.allTodos = JSON.parse(localStorage.getItem("todos"));
+           
         } else {
-            this.todos = this.todos;
-        }
+             console.log('2');
+            this.allTodos = this.initialTodos;
+           
+       }
     },
     methods: {
         addNewTodo() {
             this.isAddTodoModalActive = false;
             setTimeout (() => {
-                this.todos.push({id: this.todos.length + 1, value: this.addNewTodoValue, isCompleted: false});
+                this.allTodos.push({id: this.allTodos.length + 1, value: this.addNewTodoValue, isCompleted: false});
                 this.saveToLocalStorage();
             }, 500);
         },
         saveToLocalStorage() {
-            localStorage.setItem("todos", JSON.stringify(this.todos));
-            this.todos = JSON.parse(localStorage.getItem("todos"));
+            localStorage.setItem("todos", JSON.stringify(this.initialTodos));
+            this.allTodos = JSON.parse(localStorage.getItem("todos"));
         }
     }
 }
