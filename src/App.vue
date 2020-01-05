@@ -67,7 +67,7 @@
             <a class="panel-block" v-for="todo in allTodos" :key="todo.id">
                 <div class="left-block">
                     <div class="field">
-                        <b-checkbox :value="true" v-model="todo.isCompleted"
+                        <b-checkbox :value="true" v-on:click="saveToLocalStorage(todo)" v-model="todo.isCompleted"
                         type="is-success">
                         </b-checkbox>
                     </div>
@@ -107,7 +107,6 @@ export default {
                 { id: 1, value: 'First todo', isCompleted: true},
                 { id: 2, value: 'Second todo', isCompleted: false},
                 { id: 3, value: 'Third todo', isCompleted: true},
-                
             ]
         }
     },
@@ -119,21 +118,29 @@ export default {
         } else {
             console.log('2');
             this.allTodos = this.initialTodos;
-           
        }
+    },
+    watch: {
+        allTodos: {
+            handler() {
+                console.log('Todos changed!');
+                localStorage.setItem('todos', JSON.stringify(this.allTodos));
+            },
+            deep: true,
+        }
     },
     methods: {
         addNewTodo() {
             this.isAddTodoModalActive = false;
             setTimeout (() => {
                 this.allTodos.push({id: this.allTodos.length + 1, value: this.addNewTodoValue, isCompleted: false});
-                this.saveToLocalStorage();
+                // this.saveToLocalStorage();
             }, 500);
         },
-        saveToLocalStorage() {
-            localStorage.setItem("todos", JSON.stringify(this.allTodos));
-            this.allTodos = JSON.parse(localStorage.getItem("todos"));
-        }
+        // saveToLocalStorage() {
+        //     localStorage.setItem("todos", JSON.stringify(this.allTodos));
+        //     this.allTodos = JSON.parse(localStorage.getItem("todos"));
+        // }
     }
 }
 </script>
