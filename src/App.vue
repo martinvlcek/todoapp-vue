@@ -1,31 +1,52 @@
 <template>
     <div id="app">
 
-
         <!-- ADD TODO MODAL CONTENT -->
-            <section>
-                <b-modal :active.sync="isAddTodoModalActive" :width="640" scroll="keep">
-                    <form action="">
-                        <div class="modal-card" style="width: auto">
-                            <header class="modal-card-head">
-                                <p class="modal-card-title">Add new todo</p>
-                            </header>
-                            <section class="modal-card-body">
-                                <b-field label="Todo message">
-                                    <b-input v-model="addNewTodoValue" maxlength="200" type="textarea"></b-input>
-                                </b-field>
+        <section>
+            <b-modal :active.sync="isAddTodoModalActive" :width="640" scroll="keep">
+                <form action="">
+                    <div class="modal-card" style="width: auto">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Add new todo</p>
+                        </header>
+                        <section class="modal-card-body">
+                            <b-field label="Todo message">
+                                <b-input v-model="addNewTodoValue" ref="newTodoText" maxlength="200" type="textarea"></b-input>
+                            </b-field>
 
-                            </section>
-                            <footer class="modal-card-foot">
-                                <button class="button" type="button" @click="isAddTodoModalActive = false">Close</button>
-                                <button class="button is-primary" @click.prevent="addNewTodo()">Add todo</button>
-                            </footer>
-                        </div>
-                    </form>
-                </b-modal>
-            
-            </section>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button class="button" type="button" @click="isAddTodoModalActive = false">Close</button>
+                            <button class="button is-primary" @click.prevent="addNewTodo()">Add todo</button>
+                        </footer>
+                    </div>
+                </form>
+            </b-modal>
+        </section>
 
+        <!-- DELETE TODO MODAL CONTENT -->
+        <section>
+            <b-modal :active.sync="isDeleteTodoModalActive" :width="640" scroll="keep">
+                <form action="">
+                    <div class="modal-card" style="width: auto">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Delete todo</p>
+                        </header>
+
+                        <section class="modal-card-body">
+                            <b-field label="Are you sure you want to delete the todo?">
+                                <b-input maxlength="200" type="textarea" disabled v-model="deleteTodoModalValue"></b-input>
+                            </b-field>
+                        </section>
+                        
+                        <footer class="modal-card-foot">
+                            <button class="button" type="button" @click="isDeleteTodoModalActive = false">Close</button>
+                            <button class="button is-danger" @click.prevent="deleteTodo()">Delete todo</button>
+                        </footer>
+                    </div>
+                </form>
+            </b-modal>
+        </section>
 
         <section class="hero is-dark is-bold">
             <div class="hero-body">
@@ -46,14 +67,14 @@
             </p>
             <div class="panel-block">
                 <p class="control has-icons-left">
-                <input class="input" type="text" placeholder="Search">
-                <span class="icon is-left">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </span>
+                    <input class="input" type="text" placeholder="Search">
+                    <span class="icon is-left">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </span>
                 </p>
 
                 <button class="button is-info add-todo-btn"
-                    @click="isAddTodoModalActive = true">
+                    @click="openAddTodoModal">
                     <b-icon icon="plus-circle-outline"></b-icon>
                     <span>Add todo</span>
                 </button>
@@ -67,7 +88,7 @@
             <a class="panel-block" v-for="todo in allTodos" :key="todo.id">
                 <div class="left-block">
                     <div class="field">
-                        <b-checkbox :value="true" v-on:click="saveToLocalStorage(todo)" v-model="todo.isCompleted"
+                        <b-checkbox :value="true" v-model="todo.isCompleted"
                         type="is-success">
                         </b-checkbox>
                     </div>
@@ -75,21 +96,23 @@
                         {{todo.value}}
                     </p>
                 </div>
-
+    
                 <div class="action-icons-block">
                     <b-icon
                         icon="pencil-outline"
                         type="is-primary">
                     </b-icon>
 
-                    <b-icon
-                        icon="trash-can-outline"
-                        type="is-danger">
+                    <span @click="openDeleteTodoModal(todo)">
+                        <b-icon
+                            icon="trash-can-outline"
+                            type="is-danger">
                     </b-icon>
+                    </span>
+                    
                 </div>
             </a>
         </nav>
-
 
     </div>
 </template>
@@ -101,8 +124,12 @@ export default {
         return {
             addNewTodoValue: '',
             isAddTodoModalActive: false,
-            isCompleted: true,
+            isDeleteTodoModalActive: false,
+            deleteTodoModalValue: '',
+            isCompleted: false,
+            selectedTodo: null,
             allTodos: [],
+            resetId: 1,
             initialTodos: [
                 { id: 1, value: 'First todo', isCompleted: true},
                 { id: 2, value: 'Second todo', isCompleted: false},
@@ -114,7 +141,6 @@ export default {
         if (localStorage.getItem("todos")) {
             console.log('1');
             this.allTodos = JSON.parse(localStorage.getItem("todos"));
-           
         } else {
             console.log('2');
             this.allTodos = this.initialTodos;
@@ -123,24 +149,36 @@ export default {
     watch: {
         allTodos: {
             handler() {
-                console.log('Todos changed!');
                 localStorage.setItem('todos', JSON.stringify(this.allTodos));
             },
             deep: true,
         }
     },
     methods: {
-        addNewTodo() {
-            this.isAddTodoModalActive = false;
-            setTimeout (() => {
-                this.allTodos.push({id: this.allTodos.length + 1, value: this.addNewTodoValue, isCompleted: false});
-                // this.saveToLocalStorage();
-            }, 500);
+        openAddTodoModal() {
+            this.isAddTodoModalActive = true;
+            setTimeout(() => {
+                this.$refs.newTodoText.focus();
+            }, 10);
         },
-        // saveToLocalStorage() {
-        //     localStorage.setItem("todos", JSON.stringify(this.allTodos));
-        //     this.allTodos = JSON.parse(localStorage.getItem("todos"));
-        // }
+        addNewTodo() {
+            const highestId = Math.max.apply(Math, this.allTodos.map(todo => todo.id));
+            const test = (highestId != '-Infinity') ? highestId + 1 : this.resetId;
+            this.allTodos.push({id: test, value: this.addNewTodoValue, isCompleted: false});
+            this.isAddTodoModalActive = false;
+            this.addNewTodoValue = '';
+        },
+        openDeleteTodoModal(todo) {
+            this.selectedTodo = todo;
+            this.deleteTodoModalValue = todo.value;
+            this.isDeleteTodoModalActive = true
+        },
+        deleteTodo() {
+            this.isDeleteTodoModalActive = false;
+            let index = this.allTodos.indexOf(this.selectedTodo);
+            // this.allTodos.splice(index, 1);
+            this.$delete(this.allTodos, index);
+        } 
     }
 }
 </script>
