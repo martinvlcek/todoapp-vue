@@ -24,6 +24,29 @@
             </b-modal>
         </section>
 
+        <!-- EDIT TODO MODAL CONTENT -->
+        <section>
+            <b-modal :active.sync="isEditTodoModalActive" :width="640" scroll="keep">
+                <form action="">
+                    <div class="modal-card" style="width: auto">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Edit todo</p>
+                        </header>
+                        <section class="modal-card-body">
+                            <b-field label="Todo message">
+                                <b-input v-model="editTodoModalValue" ref="newEditText" maxlength="200" type="textarea"></b-input>
+                            </b-field>
+
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button class="button" type="button" @click="isEditTodoModalActive = false">Close</button>
+                            <button class="button is-primary" @click.prevent="editTodo()">Edit todo</button>
+                        </footer>
+                    </div>
+                </form>
+            </b-modal>
+        </section>
+
         <!-- DELETE TODO MODAL CONTENT -->
         <section>
             <b-modal :active.sync="isDeleteTodoModalActive" :width="640" scroll="keep">
@@ -98,16 +121,18 @@
                 </div>
     
                 <div class="action-icons-block">
-                    <b-icon
-                        icon="pencil-outline"
-                        type="is-primary">
-                    </b-icon>
+                    <span @click="openEditTodoModal(todo)">
+                        <b-icon
+                            icon="pencil-outline"
+                            type="is-primary">
+                        </b-icon>
+                    </span>
 
                     <span @click="openDeleteTodoModal(todo)">
                         <b-icon
                             icon="trash-can-outline"
                             type="is-danger">
-                    </b-icon>
+                        </b-icon>
                     </span>
                     
                 </div>
@@ -124,8 +149,10 @@ export default {
         return {
             addNewTodoValue: '',
             isAddTodoModalActive: false,
+            isEditTodoModalActive: false,
             isDeleteTodoModalActive: false,
             deleteTodoModalValue: '',
+            editTodoModalValue: '',
             isCompleted: false,
             selectedTodo: null,
             allTodos: [],
@@ -178,7 +205,19 @@ export default {
             let index = this.allTodos.indexOf(this.selectedTodo);
             // this.allTodos.splice(index, 1);
             this.$delete(this.allTodos, index);
-        } 
+        },
+        openEditTodoModal(todo) {
+            this.selectedTodo = todo;
+            this.editTodoModalValue = todo.value;
+            this.isEditTodoModalActive = true;
+            setTimeout(() => {
+                this.$refs.newEditText.focus();
+            }, 10)
+        },
+        editTodo() {
+            this.selectedTodo.value = this.editTodoModalValue;
+            this.isEditTodoModalActive = false;
+        }
     }
 }
 </script>
