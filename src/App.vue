@@ -104,11 +104,11 @@
 
             </div>
             <p class="panel-tabs">
-                <a class="is-active">All</a>
-                <a>Completed</a>
-                <a>Uncompleted</a>
+                <a @click="visibleTodos = 'all'" :class="{ 'is-active': visibleTodos == 'all' }">All</a>
+                <a @click="visibleTodos = 'completed'" :class="{ 'is-active': visibleTodos == 'completed' }">Completed</a>
+                <a @click="visibleTodos = 'active'" :class="{ 'is-active': visibleTodos == 'active' }">Active</a>
             </p>
-            <a class="panel-block" v-for="todo in allTodos" :key="todo.id">
+            <a class="panel-block" v-for="todo in filteredTodos" :key="todo.id">
                 <div class="left-block">
                     <div class="field">
                         <b-checkbox :value="true" v-model="todo.isCompleted"
@@ -144,6 +144,22 @@
 
 <script>
 
+const filters = {
+    all(allTodos) {
+        return allTodos;
+    },
+    completed(allTodos) {
+        return allTodos.filter(function(todo) {
+            return todo.isCompleted;
+        })
+    },
+    active(allTodos) {
+        return allTodos.filter(function(todo) {
+            return !todo.isCompleted;
+        }) 
+    }
+};
+
 export default {
     data() {
         return {
@@ -157,6 +173,7 @@ export default {
             selectedTodo: null,
             allTodos: [],
             resetId: 1,
+            visibleTodos: 'all',
             initialTodos: [
                 { id: 1, value: 'First todo', isCompleted: true},
                 { id: 2, value: 'Second todo', isCompleted: false},
@@ -172,6 +189,11 @@ export default {
             console.log('2');
             this.allTodos = this.initialTodos;
        }
+    },
+    computed: {
+        filteredTodos() {
+            return filters[this.visibleTodos](this.allTodos);
+        }
     },
     watch: {
         allTodos: {
@@ -190,8 +212,8 @@ export default {
         },
         addNewTodo() {
             const highestId = Math.max.apply(Math, this.allTodos.map(todo => todo.id));
-            const test = (highestId != '-Infinity') ? highestId + 1 : this.resetId;
-            this.allTodos.push({id: test, value: this.addNewTodoValue, isCompleted: false});
+            const lastId = (highestId != '-Infinity') ? highestId + 1 : this.resetId;
+            this.allTodos.push({id: lastId, value: this.addNewTodoValue, isCompleted: false});
             this.isAddTodoModalActive = false;
             this.addNewTodoValue = '';
         },
