@@ -90,7 +90,7 @@
             </p>
             <div class="panel-block">
                 <p class="control has-icons-left">
-                    <input class="input" type="text" placeholder="Search">
+                    <input class="input" type="text" @keyup.esc="search = ''" v-model="search" placeholder="Search">
                     <span class="icon is-left">
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </span>
@@ -144,7 +144,7 @@
 
 <script>
 
-const filters = {
+let filters = {
     all(allTodos) {
         return allTodos;
     },
@@ -174,6 +174,7 @@ export default {
             allTodos: [],
             resetId: 1,
             visibleTodos: 'all',
+            search: '',
             initialTodos: [
                 { id: 1, value: 'First todo', isCompleted: true},
                 { id: 2, value: 'Second todo', isCompleted: false},
@@ -192,7 +193,14 @@ export default {
     },
     computed: {
         filteredTodos() {
-            return filters[this.visibleTodos](this.allTodos);
+            let filtered = filters[this.visibleTodos](this.allTodos);
+
+            if (this.search) {
+                filtered = filtered.filter(
+                    m => m.value.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+                );
+            }
+            return filtered;
         }
     },
     watch: {
@@ -211,8 +219,8 @@ export default {
             }, 10);
         },
         addNewTodo() {
-            const highestId = Math.max.apply(Math, this.allTodos.map(todo => todo.id));
-            const lastId = (highestId != '-Infinity') ? highestId + 1 : this.resetId;
+            let highestId = Math.max.apply(Math, this.allTodos.map(todo => todo.id));
+            let lastId = (highestId != '-Infinity') ? highestId + 1 : this.resetId;
             this.allTodos.push({id: lastId, value: this.addNewTodoValue, isCompleted: false});
             this.isAddTodoModalActive = false;
             this.addNewTodoValue = '';
