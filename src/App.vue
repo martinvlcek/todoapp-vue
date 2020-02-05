@@ -9,6 +9,9 @@
                     </h1>
                     <h2 class="subtitle">
                         created by Martin Vlcek
+                        <a href="https://github.com/martinvlcek/todoapp-vue" class="github-link" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
                     </h2>
                 </div>
             </div>
@@ -61,6 +64,16 @@ export default {
     color: #2c3e50;
     .hero {
         text-align: center;
+        .github-link {
+            &:hover {
+                .fa-github {
+                    transform: scale(1.3);
+                }
+            }
+            .fa-github {
+                 transition: all .2s ease-in-out;
+            }
+        }
     }
 }
 
